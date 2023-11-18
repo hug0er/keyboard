@@ -17,31 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */                      
 
 #include QMK_KEYBOARD_H
-#include "quantum.h"
 
-enum custom_keycodes {
-    MOD_LAYER_1,
-    MOD_LAYER_2,
-    MO2_ENTER,
-    TD_CTRL_ESC = 0,
+tap_dance_action_t tap_dance_actions[] = {
+   
 };
-
-qk_tap_dance_action_t tap_dance_actions[] = {
-    [TD_CTRL_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_LCTRL, KC_ESC), // on  mantain pressed control and esc on tap
-    [MO2_ENTER] = ACTION_TAP_DANCE_DOUBLE(MOD_LAYER_2, KC_ENT), // on  mantain pressed enter and MOD_LAYER_2 on tap
-};
-
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-  TD_CTRL_ESC,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
+  CTL_T(KC_ESC),    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                   KC_LGUI,   MOD_LAYER_1,  KC_SPC,     KC_SPC,   MO2_ENTER, KC_RALT
+                                   KC_LGUI,   MO(1),  KC_SPC,     KC_SPC,   MO(2), KC_RALT
                                       //`--------------------------'  `--------------------------'
 
   ),
@@ -82,28 +72,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   )
 };
-
-
-void matrix_init_user(void) {
-}
-
-void matrix_scan_user(void) {
-    // Verificar si ambas teclas están siendo presionadas simultáneamente
-    if (keyboard_report->mods & get_mods(MOD_LAYER_1) && keyboard_report->mods & get_mods(MOD_LAYER_2)) {
-        layer_on(3);
-
-    }
-    // Verificar si solo MOD_LAYER_1 está siendo presionada
-    else if (keyboard_report->mods & get_mods(MOD_LAYER_1)) {
-        layer_on(1);
-
-    }
-    // Verificar si solo MOD_LAYER_2 está siendo presionada
-    else if (keyboard_report->mods & get_mods(MOD_LAYER_2)) {
-        layer_on(2);
-    }
-}
-
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-}
