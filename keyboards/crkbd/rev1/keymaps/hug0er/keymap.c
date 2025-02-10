@@ -18,19 +18,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
-tap_dance_action_t tap_dance_actions[] = {
+// Home row mods
+#define HM_A    MT(MOD_LGUI, KC_A)
+#define HM_S    MT(MOD_LALT, KC_S)
+#define HM_D    MT(MOD_LSFT, KC_D)
+#define HM_F    MT(MOD_LCTL, KC_F)
 
+// Home row mods - mirror
+#define HM_J    MT(MOD_RCTL, KC_J)
+#define HM_K    MT(MOD_RSFT, KC_K)
+#define HM_L    MT(MOD_RALT, KC_L)
+#define HM_SCLN MT(MOD_RGUI, KC_SCLN)
+
+// Tap Dance
+#define TD_ESC  TD(TD_HYPER_ESC)    // Tap: Escape, Hold: Hyper (All mods)
+
+enum custom_keycodes {
+    TD_HYPER_ESC = 0,
+};
+
+void ctrl_super_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->pressed) {
+        // Activar todas las teclas modificadoras cuando se mantiene presionado
+        register_mods(MOD_BIT(KC_LGUI) | MOD_BIT(KC_LSFT) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL));
+    } else {
+        // Enviar Escape cuando se toca
+        tap_code(KC_ESC);
+    }
+}
+
+void ctrl_super_reset(tap_dance_state_t *state, void *user_data) {
+    // Desactivar todas las teclas modificadoras cuando se suelta
+    unregister_mods(MOD_BIT(KC_LGUI) | MOD_BIT(KC_LSFT) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL));
+}
+
+// Eliminar el array anterior y reemplazarlo con este
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_HYPER_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ctrl_super_finished, ctrl_super_reset),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-  CTL_T(KC_ESC),    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT,
-  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+       KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
+  //|---------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      TD_ESC,   HM_A,    HM_S,    HM_D,    HM_F,    KC_G,                         KC_H,    HM_J,    HM_K,    HM_L, HM_SCLN, KC_QUOT,
+  //|---------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M,   KC_COMM,   KC_DOT, KC_SLSH,  KC_RSFT,
+  //|---------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   MO(1),  KC_SPC,   KC_SPC,   LT(2, KC_ENTER), KC_RALT
                                       //`--------------------------'  `--------------------------'
 
@@ -50,11 +85,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [2] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB, XXXXXXX,   XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+       KC_TRNS, XXXXXXX,   XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT,  XXXXXXX, XXXXXXX,
+      KC_TRNS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT,  XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      KC_TRNS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   MO(3),  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -70,5 +105,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
-  )
+  ),
+
+    [4] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+       KC_TRNS, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI,                      KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_TRNS,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+       KC_TRNS, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI,                      KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+       KC_TRNS, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI,                      KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_LGUI, KC_TRNS,
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                          KC_TRNS, KC_TRNS, KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS
+                                      //`--------------------------'  `--------------------------'
+  ),
 };
